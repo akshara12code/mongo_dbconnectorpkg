@@ -17,10 +17,10 @@ def get_requirements(file_path:str)->List[str]:
 
 with open("README.md","r", encoding="utf-8") as f:
     long_description=f.read()
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 
 REPO_NAME = "mongo_dbconnectorpkg"
-PKG_NAME = "akshara12srivastava-mongodbautomation"  # Make it unique
+PKG_NAME = "akshara12sriv-mongodbautomation"  # Make it unique
 AUTHOR_USER_NAME = "akshara12code"
 AUTHOR_EMAIL = "akshara12082005@gmail.com"
 
