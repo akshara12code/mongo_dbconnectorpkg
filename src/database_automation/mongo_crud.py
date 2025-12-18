@@ -2,8 +2,8 @@ from typing import Any
 import os
 import pandas as pd
 from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 import json
-
 
 
 class mongo_operation:
@@ -16,14 +16,20 @@ class mongo_operation:
         self.collection_name = collection_name
        
     def create_mongo_client(self, collection=None):
-        client = MongoClient(self.client_url)
+        # Fixed: Add SSL/TLS support for MongoDB Atlas
+        client = MongoClient(
+            self.client_url,
+            server_api=ServerApi('1'),
+            tls=True,
+            tlsAllowInvalidCertificates=True
+        )
         return client
     
     def create_database(self, collection=None):
         if mongo_operation.__database == None:
             client = self.create_mongo_client(collection)
-            mongo_operation.__database = client[self.database_name]  # Fixed: use class variable
-        return mongo_operation.__database  # Fixed: return class variable
+            mongo_operation.__database = client[self.database_name]
+        return mongo_operation.__database
     
     def create_collection(self, collection_name=None):
         # Use provided collection_name or fall back to instance variable
@@ -56,20 +62,16 @@ class mongo_operation:
     def bulk_insert(self, datafile, collection_name: str = None):
         self.path = datafile
         
-        # Fixed: pd.read_csv (not pd.read.csv)
         if self.path.endswith('.csv'):
             dataframe = pd.read_csv(self.path, encoding='utf-8')
             
-        # Fixed: removed encoding parameter (not supported for Excel)
         elif self.path.endswith(".xlsx"):
             dataframe = pd.read_excel(self.path)
         else:
             raise ValueError("File must be .csv or .xlsx")
             
-        # Fixed: orient='records' (plural)
         datajson = json.loads(dataframe.to_json(orient='records'))
         
-        # Fixed: pass collection_name
         collection = self.create_collection(collection_name)
         collection.insert_many(datajson)
         
