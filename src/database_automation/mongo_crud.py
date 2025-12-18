@@ -2,12 +2,12 @@ from typing import Any
 import os
 import pandas as pd
 from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 import json
+import ssl
 
 
 class mongo_operation:
-    __collection = None  # Private/protected variable
+    __collection = None
     __database = None
     
     def __init__(self, client_url: str, database_name: str, collection_name: str = None):
@@ -16,14 +16,20 @@ class mongo_operation:
         self.collection_name = collection_name
        
     def create_mongo_client(self, collection=None):
-        # Fixed: Add SSL/TLS support for MongoDB Atlas
-        client = MongoClient(
-            self.client_url,
-            server_api=ServerApi('1'),
-            tls=True,
-            tlsAllowInvalidCertificates=True
-        )
-        return client
+        # Create SSL context that doesn't verify certificates
+        try:
+            client = MongoClient(
+                self.client_url,
+                tlsAllowInvalidCertificates=True,
+                tlsAllowInvalidHostnames=True,
+                ssl_cert_reqs=ssl.CERT_NONE
+            )
+            # Test the connection
+            client.admin.command('ping')
+            return client
+        except Exception as e:
+            print(f"Connection error: {e}")
+            raise
     
     def create_database(self, collection=None):
         if mongo_operation.__database == None:
@@ -32,7 +38,6 @@ class mongo_operation:
         return mongo_operation.__database
     
     def create_collection(self, collection_name=None):
-        # Use provided collection_name or fall back to instance variable
         if collection_name:
             target_collection = collection_name
         else:
