@@ -20,7 +20,7 @@ with open("README.md","r", encoding="utf-8") as f:
 __version__ = "0.0.4"
 
 REPO_NAME = "mongo_dbconnectorpkg"
-PKG_NAME = "akshara-mongodbautomation"  # Make it unique
+PKG_NAME = "akshara12-mongodbautomation"  # Make it unique
 AUTHOR_USER_NAME = "akshara12code"
 AUTHOR_EMAIL = "akshara12082005@gmail.com"
 
